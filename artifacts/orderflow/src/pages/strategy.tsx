@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useGetStrategyConfig, useUpdateStrategyConfig, useGetTrades, useGetPerformance } from "@workspace/api-client-react";
 import { formatCurrency, formatPercentage, formatProb, cn } from "@/lib/utils";
-import { Settings, Save, RefreshCw, Briefcase, Activity, CheckCircle2, XCircle } from "lucide-react";
+import { Settings, Save, RefreshCw, Briefcase, Activity, CheckCircle2, XCircle, TrendingUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function StrategyPage() {
   const { toast } = useToast();
@@ -43,7 +44,12 @@ export default function StrategyPage() {
   }, [config]);
 
   const handleSaveConfig = () => {
-    updateConfigMut.mutate({ data: localConfig });
+    updateConfigMut.mutate({
+      data: {
+        ...localConfig,
+        minEdge: parseFloat((localConfig.minEdge * 100).toFixed(2)),
+      },
+    });
   };
 
   return (
@@ -89,6 +95,37 @@ export default function StrategyPage() {
                 </div>
               </div>
             ) : null}
+          </div>
+
+          {/* Equity Curve */}
+          <div className="glass-panel rounded-xl p-5">
+            <h3 className="text-sm font-mono text-muted-foreground uppercase tracking-wider mb-4 flex items-center">
+              <TrendingUp className="w-4 h-4 mr-2" /> Equity Curve
+            </h3>
+            {isPerfLoading ? (
+              <div className="h-36 animate-pulse bg-white/5 rounded-lg" />
+            ) : performance?.equityCurve && performance.equityCurve.length > 1 ? (
+              <ResponsiveContainer width="100%" height={140}>
+                <AreaChart data={performance.equityCurve} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="equityGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="date" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))", fontFamily: "monospace" }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))", fontFamily: "monospace" }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${(v/1000).toFixed(1)}k`} />
+                  <Tooltip
+                    contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "monospace" }}
+                    formatter={(v: number) => [formatCurrency(v), "Equity"]}
+                  />
+                  <Area type="monotone" dataKey="equity" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#equityGrad)" dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-36 flex items-center justify-center text-muted-foreground text-xs font-mono">No closed trades yet</div>
+            )}
           </div>
 
           {/* Strategy Config */}

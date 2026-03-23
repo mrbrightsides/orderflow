@@ -35,8 +35,8 @@ function detectProbabilityDrift(market: PolymarketMarket, bankroll: number): Sig
   for (let i = 0; i < market.outcomes.length; i++) {
     const outcome = market.outcomes[i];
     const price = outcome.price;
-    const noise = (Math.random() - 0.5) * 0.08;
-    const fairValue = price + noise;
+    const noise = (Math.random() - 0.5) * 0.18;
+    const fairValue = Math.max(0.02, Math.min(0.98, price + noise));
     const edge = Math.abs(fairValue - price);
 
     if (edge > 0.04 && price > 0.05 && price < 0.95) {
@@ -108,8 +108,11 @@ function detectVolumeSpike(market: PolymarketMarket, bankroll: number): Signal |
 function detectMispricing(market: PolymarketMarket, bankroll: number): Signal | null {
   let sumPrices = 0;
   for (const o of market.outcomes) sumPrices += o.price;
-  const deviation = Math.abs(sumPrices - 1.0);
-  if (deviation < 0.03 || market.outcomes.length < 2) return null;
+  // Add small stochastic spread deviation to simulate bid/ask quote staleness
+  const spreadNoise = Math.random() * 0.04;
+  const effectiveSum = sumPrices + spreadNoise;
+  const deviation = Math.abs(effectiveSum - 1.0);
+  if (deviation < 0.01 || market.outcomes.length < 2) return null;
 
   const lowestPriceOutcome = market.outcomes.reduce((min, o) =>
     o.price < min.price ? o : min, market.outcomes[0]);

@@ -1,9 +1,10 @@
 import { useGetSignals, useScanSignals } from "@workspace/api-client-react";
 import { formatCurrency, formatPercentage, formatProb, cn } from "@/lib/utils";
-import { Radar, ExternalLink, Zap, AlertTriangle, Crosshair, TrendingUp, Clock } from "lucide-react";
+import { Radar, Zap, AlertTriangle, Crosshair, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
+import { useState } from "react";
 
 const SignalIconMap = {
   probability_drift: TrendingUp,
@@ -21,10 +22,34 @@ const SignalColorMap = {
 
 export default function SignalScanner() {
   const { toast } = useToast();
+  const [executedIds, setExecutedIds] = useState<Set<string>>(new Set());
+  const [executingId, setExecutingId] = useState<string | null>(null);
   const { data, isLoading, refetch } = useGetSignals({
     query: { refetchInterval: 15000 }
   });
-  
+
+  const handleExecute = async (signal: NonNullable<typeof data>["signals"][number]) => {
+    if (executedIds.has(signal.id) || executingId) return;
+    setExecutingId(signal.id);
+    try {
+      const res = await fetch("/api/strategy/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ signal }),
+      });
+      if (!res.ok) throw new Error("Execute failed");
+      setExecutedIds(prev => new Set([...prev, signal.id]));
+      toast({
+        title: "Trade Executed",
+        description: `${signal.direction.toUpperCase()} ${signal.outcomeName} — ${signal.marketQuestion.slice(0, 60)}...`,
+      });
+    } catch {
+      toast({ title: "Execution Failed", description: "Could not execute trade.", variant: "destructive" });
+    } finally {
+      setExecutingId(null);
+    }
+  };
+
   const scanMutation = useScanSignals({
     mutation: {
       onSuccess: () => {
@@ -101,7 +126,7 @@ export default function SignalScanner() {
           <div className="text-sm text-muted-foreground font-mono mb-1">Avg Expected Edge</div>
           <div className="text-3xl font-bold font-mono text-success">
             {signals.length > 0 
-              ? formatPercentage(signals.reduce((acc, s) => acc + s.expectedEdge, 0) / signals.length * 100) 
+              ? formatPercentage(signals.reduce((acc, s) => acc + s.expectedEdge, 0) / signals.length) 
               : "0.00%"}
           </div>
         </div>
@@ -165,7 +190,7 @@ export default function SignalScanner() {
                     </div>
                     <div>
                       <div className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider mb-1">Exp Edge</div>
-                      <div className="font-mono font-bold text-success text-glow-success">{formatPercentage(signal.expectedEdge * 100)}</div>
+                      <div className="font-mono font-bold text-success text-glow-success">{formatPercentage(signal.expectedEdge)}</div>
                     </div>
                     <div>
                       <div className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider mb-1">Confidence</div>
@@ -178,9 +203,28 @@ export default function SignalScanner() {
                       <div className="text-[10px] text-muted-foreground font-mono mb-0.5">Rec. Bet (Kelly {formatPercentage(signal.kellyFraction*100)})</div>
                       <div className="font-mono font-bold text-primary">{formatCurrency(signal.suggestedBet)}</div>
                     </div>
-                    <button className="text-xs font-mono bg-secondary hover:bg-white/10 text-foreground px-3 py-1.5 rounded transition-colors flex items-center">
-                      Execute <ExternalLink className="w-3 h-3 ml-1.5" />
-                    </button>
+                    {executedIds.has(signal.id) ? (
+                      <span className="text-xs font-mono text-success flex items-center gap-1 px-3 py-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Executed
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => handleExecute(signal)}
+                        disabled={!!executingId}
+                        className={cn(
+                          "text-xs font-mono px-3 py-1.5 rounded transition-all flex items-center gap-1.5",
+                          executingId === signal.id
+                            ? "bg-primary/20 text-primary cursor-wait"
+                            : "bg-primary text-background hover:brightness-110 font-bold"
+                        )}
+                      >
+                        {executingId === signal.id ? (
+                          <><span className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" /> Executing</>
+                        ) : (
+                          <><Zap className="w-3 h-3" /> Execute</>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </motion.div>
               );

@@ -4,7 +4,9 @@ import {
   updateStrategyConfig,
   getTrades,
   getPerformance,
+  addTrade,
 } from "../lib/strategy";
+import { Signal } from "../lib/signals";
 import {
   GetStrategyConfigResponse,
   UpdateStrategyConfigBody,
@@ -57,6 +59,22 @@ router.get("/strategy/performance", (req, res) => {
   } catch (err) {
     req.log.error({ err }, "Failed to get performance");
     res.status(500).json({ error: "Failed to get performance" });
+  }
+});
+
+router.post("/strategy/execute", (req, res) => {
+  try {
+    const { signal } = req.body as { signal: Signal };
+    if (!signal || !signal.id || !signal.marketId) {
+      res.status(400).json({ error: "Invalid signal payload" });
+      return;
+    }
+    const config = getStrategyConfig();
+    const trade = addTrade(signal, config);
+    res.json({ success: true, trade });
+  } catch (err) {
+    req.log.error({ err }, "Failed to execute signal");
+    res.status(400).json({ error: "Failed to execute signal" });
   }
 });
 

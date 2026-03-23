@@ -1,5 +1,13 @@
 # OrderFlow Buddy
 
+![Live](https://img.shields.io/badge/🚀%20Live-OrderFlow%20Buddy-success?style=for-the-badge)
+![Built](https://img.shields.io/badge/⚡%20Built%20in-48%20Hours-red?style=for-the-badge)
+![Signals](https://img.shields.io/badge/📊%20Signals-4%20Detectors-blue?style=for-the-badge)
+![Strategy](https://img.shields.io/badge/🧠%20Strategy-Kelly%20Optimized-yellow?style=for-the-badge)
+![Backend](https://img.shields.io/badge/⚙️%20Backend-Express%205-black?style=for-the-badge)
+![Frontend](https://img.shields.io/badge/🎨%20Frontend-React%20%2B%20Vite-purple?style=for-the-badge)
+![Deploy](https://img.shields.io/badge/☁️%20Deploy-Railway-brightgreen?style=for-the-badge)
+
 **Prediction market trading intelligence system for Polymarket.**
 
 Live app: [orderflowbuddy.up.railway.app](https://orderflowbuddy.up.railway.app)  
@@ -7,9 +15,21 @@ GitHub: [github.com/mrbrightsides/orderflow](https://github.com/mrbrightsides/or
 
 ---
 
+Prediction markets are among the most information-efficient markets in the world — but most retail participants lack tools to systematically extract edge.
+
+*OrderFlow Buddy bridges that gap.*
+
 ## What it does
 
 OrderFlow Buddy scans Polymarket prediction markets in real time, detects trading signals, sizes positions using the Kelly Criterion, and provides a full backtesting engine for strategy validation.
+
+Example Signal:
+
+* Market: "Will BTC exceed $70k by June?"
+* Signal: Mispricing
+* Edge: +6.2%
+* Kelly Size: 4.1%
+* Confidence: High
 
 ### Modules
 

@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { Activity, LineChart, Target, TerminalSquare, Zap, Home } from "lucide-react";
+import { Activity, LineChart, Target, TerminalSquare, Zap, Home, Github } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -53,9 +53,20 @@ export function Layout({ children }: { children: ReactNode }) {
             <Home className="w-3.5 h-3.5" />
             Back to landing
           </Link>
-          <div className="flex items-center text-xs text-muted-foreground font-mono">
-            <div className="w-2 h-2 rounded-full bg-success mr-2 animate-pulse shadow-[0_0_8px_hsl(var(--success))]" />
-            System Online
+          <div className="flex items-center justify-between">
+            <div className="flex items-center text-xs text-muted-foreground font-mono">
+              <div className="w-2 h-2 rounded-full bg-success mr-2 animate-pulse shadow-[0_0_8px_hsl(var(--success))]" />
+              System Online
+            </div>
+            <a
+              href="https://github.com/mrbrightsides/orderflow"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-primary transition-colors"
+              title="View on GitHub"
+            >
+              <Github className="w-4 h-4" />
+            </a>
           </div>
         </div>
       </aside>

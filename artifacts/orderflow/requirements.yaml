@@ -1,0 +1,12 @@
+packages:
+  "recharts": "For rendering the equity curve and performance charts"
+  "date-fns": "For formatting dates and times in the trade log and charts"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for intelligently merging tailwind classes without style conflicts"
+  "framer-motion": "For smooth transitions and micro-interactions in the dashboard"
+
+images: []
+
+notes:
+  - "Assuming @workspace/api-client-react provides all TanStack query hooks directly."
+  - "The UI is designed to be a dark-mode only 'terminal' aesthetic for quantitative trading."

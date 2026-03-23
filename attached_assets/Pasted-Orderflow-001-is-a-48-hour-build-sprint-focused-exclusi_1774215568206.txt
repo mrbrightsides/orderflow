@@ -1,0 +1,144 @@
+Orderflow 001 is a 48-hour build sprint focused exclusively on on-chain trading systems and prediction market automation.
+
+Participants must build a working system related to:
+
+Polymarket automation
+
+On-chain execution engines
+
+Signal generation frameworks
+
+Risk-adjusted strategy models
+
+Orderflow analysis systems
+
+Backtesting engines for prediction markets
+
+This is not a pitch competition.
+This is not a UI contest.
+
+Every submission must demonstrate measurable output.
+
+The goal is simple:
+Build a real system. Show performance. Ship.
+
+Get Started
+1. Sign up on Devpost (this page!)
+
+It is important that you sign up here because Devpost is the only platform where we will accept submissions. All final projects must be submitted through this page before the deadline.
+
+2. Join the Discord! https://discord.gg/sBpdNqVywZ
+
+All announcements, schedule updates, and important information will be shared in our Discord server.
+
+You can:
+
+Find teammates
+
+Ask technical questions
+
+Interact with organizers
+
+View the rubric and submission checklist
+
+Stay updated in the #announcements channel
+
+Make sure to check it regularly.
+
+3. Form a team (max 4) or work solo and start building!
+
+Orderflow is a 48-hour build competition focused on trading systems and on-chain intelligence. This is not a pitch contest - we evaluate working systems with measurable output.
+
+Happy building ⚡
+
+Tracks
+Quantitative Trading
+Build a working trading system (Polymarket, on-chain, CEX/DEX, prediction markets).
+Examples: market-making bots, arbitrage engines, volatility strategies, execution systems.
+
+On-Chain Intelligence
+Build systems that extract signals from blockchain data.
+Examples: wallet tracking, liquidity analysis, MEV detection, behavioral analytics.
+
+Automation & Infrastructure
+Build tools that improve execution, risk management, or system performance.
+Examples: risk engines, backtesting frameworks, portfolio automation, trade analytics.
+
+AI-Augmented Systems
+Use AI to create measurable edge in markets.
+Examples: event modeling, sentiment pipelines, autonomous strategy agents.
+
+ 
+
+AI must provide real functionality, not just UI enhancement.
+
+ 
+
+📅 Sprint Timeline
+Applications Close: March 15, 2026
+
+Accepted Teams Announced: March 18, 2026
+
+48-Hour Build Window: March 22–24, 2026
+
+The sprint runs for 48 consecutive hours.
+
+ 
+
+ 
+
+👤 Who Should Participate
+Crypto-native developers
+
+Quant-minded engineers
+
+Automation-focused traders
+
+Builders interested in prediction markets
+
+Participants are expected to have prior development experience.
+
+Requirements
+🛠 What to Build
+Build a working system related to on-chain trading or prediction markets.
+
+Examples:
+
+A Polymarket trading bot
+
+A live execution engine reacting to odds
+
+A probability decay model
+
+A risk-adjusted portfolio allocator
+
+A backtesting framework
+
+A real-time market signal pipeline
+
+Your system must run and produce measurable output.
+
+ 
+
+ 
+
+📤 What to Submit
+Each submission must include:
+
+A public GitHub repository
+
+A 2–3 minute demo video
+
+A clear explanation of:
+
+Strategy logic
+
+Architecture
+
+Data sources
+
+Performance metrics
+
+Measurable output (backtest, simulation, or live data)
+
+Submissions without working implementation will not be ranked.

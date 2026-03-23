@@ -1,0 +1,554 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Orderflow - Polymarket Intelligence API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: markets
+    description: Polymarket market data
+  - name: signals
+    description: Signal generation
+  - name: strategy
+    description: Automated trading strategy
+  - name: backtest
+    description: Backtesting engine
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /markets:
+    get:
+      operationId: getMarkets
+      tags: [markets]
+      summary: Get active Polymarket markets
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: List of markets
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketsResponse"
+
+  /markets/{marketId}:
+    get:
+      operationId: getMarket
+      tags: [markets]
+      summary: Get a specific market
+      parameters:
+        - name: marketId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Market detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Market"
+
+  /markets/{marketId}/orderbook:
+    get:
+      operationId: getOrderbook
+      tags: [markets]
+      summary: Get orderbook for a market outcome
+      parameters:
+        - name: marketId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tokenId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Orderbook data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Orderbook"
+
+  /signals:
+    get:
+      operationId: getSignals
+      tags: [signals]
+      summary: Get current trading signals
+      responses:
+        "200":
+          description: List of signals
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalsResponse"
+
+  /signals/scan:
+    post:
+      operationId: scanSignals
+      tags: [signals]
+      summary: Scan markets for signals
+      responses:
+        "200":
+          description: Scanned signals
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalsResponse"
+
+  /strategy/config:
+    get:
+      operationId: getStrategyConfig
+      tags: [strategy]
+      summary: Get current strategy configuration
+      responses:
+        "200":
+          description: Strategy config
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StrategyConfig"
+    put:
+      operationId: updateStrategyConfig
+      tags: [strategy]
+      summary: Update strategy configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StrategyConfigInput"
+      responses:
+        "200":
+          description: Updated config
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StrategyConfig"
+
+  /strategy/trades:
+    get:
+      operationId: getTrades
+      tags: [strategy]
+      summary: Get simulated trade log
+      responses:
+        "200":
+          description: Trade log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradesResponse"
+
+  /strategy/performance:
+    get:
+      operationId: getPerformance
+      tags: [strategy]
+      summary: Get portfolio performance metrics
+      responses:
+        "200":
+          description: Performance metrics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceMetrics"
+
+  /backtest/run:
+    post:
+      operationId: runBacktest
+      tags: [backtest]
+      summary: Run backtest on historical market data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BacktestRequest"
+      responses:
+        "200":
+          description: Backtest results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BacktestResult"
+
+  /backtest/results:
+    get:
+      operationId: getBacktestResults
+      tags: [backtest]
+      summary: Get saved backtest results
+      responses:
+        "200":
+          description: List of backtest results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BacktestResultsResponse"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    Market:
+      type: object
+      properties:
+        id:
+          type: string
+        conditionId:
+          type: string
+        question:
+          type: string
+        category:
+          type: string
+        endDate:
+          type: string
+        active:
+          type: boolean
+        closed:
+          type: boolean
+        volume:
+          type: number
+        volume24h:
+          type: number
+        liquidity:
+          type: number
+        outcomes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Outcome"
+        createdAt:
+          type: string
+      required: [id, question, active, closed, volume, liquidity, outcomes]
+
+    Outcome:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+        tokenId:
+          type: string
+      required: [name, price, tokenId]
+
+    MarketsResponse:
+      type: object
+      properties:
+        markets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Market"
+        total:
+          type: number
+        nextCursor:
+          type: string
+      required: [markets, total]
+
+    OrderbookLevel:
+      type: object
+      properties:
+        price:
+          type: number
+        size:
+          type: number
+      required: [price, size]
+
+    Orderbook:
+      type: object
+      properties:
+        marketId:
+          type: string
+        tokenId:
+          type: string
+        bids:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderbookLevel"
+        asks:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderbookLevel"
+        spread:
+          type: number
+        midpoint:
+          type: number
+      required: [marketId, tokenId, bids, asks, spread, midpoint]
+
+    Signal:
+      type: object
+      properties:
+        id:
+          type: string
+        marketId:
+          type: string
+        marketQuestion:
+          type: string
+        outcomeIndex:
+          type: number
+        outcomeName:
+          type: string
+        signalType:
+          type: string
+          enum: [probability_drift, volume_spike, mispricing, momentum]
+        direction:
+          type: string
+          enum: [buy, sell]
+        currentPrice:
+          type: number
+        targetPrice:
+          type: number
+        expectedEdge:
+          type: number
+        confidence:
+          type: number
+        kellyFraction:
+          type: number
+        suggestedBet:
+          type: number
+        reasoning:
+          type: string
+        detectedAt:
+          type: string
+      required: [id, marketId, marketQuestion, outcomeName, signalType, direction, currentPrice, targetPrice, expectedEdge, confidence, kellyFraction, suggestedBet, reasoning, detectedAt, outcomeIndex]
+
+    SignalsResponse:
+      type: object
+      properties:
+        signals:
+          type: array
+          items:
+            $ref: "#/components/schemas/Signal"
+        scannedAt:
+          type: string
+        marketsScanned:
+          type: number
+      required: [signals, scannedAt, marketsScanned]
+
+    StrategyConfig:
+      type: object
+      properties:
+        bankroll:
+          type: number
+        maxKellyFraction:
+          type: number
+        minEdge:
+          type: number
+        minConfidence:
+          type: number
+        maxPositionSize:
+          type: number
+        enabledSignalTypes:
+          type: array
+          items:
+            type: string
+        autoTrade:
+          type: boolean
+      required: [bankroll, maxKellyFraction, minEdge, minConfidence, maxPositionSize, enabledSignalTypes, autoTrade]
+
+    StrategyConfigInput:
+      type: object
+      properties:
+        bankroll:
+          type: number
+        maxKellyFraction:
+          type: number
+        minEdge:
+          type: number
+        minConfidence:
+          type: number
+        maxPositionSize:
+          type: number
+        enabledSignalTypes:
+          type: array
+          items:
+            type: string
+        autoTrade:
+          type: boolean
+
+    Trade:
+      type: object
+      properties:
+        id:
+          type: string
+        marketId:
+          type: string
+        marketQuestion:
+          type: string
+        outcomeName:
+          type: string
+        direction:
+          type: string
+          enum: [buy, sell]
+        entryPrice:
+          type: number
+        exitPrice:
+          type: number
+        size:
+          type: number
+        pnl:
+          type: number
+        pnlPercent:
+          type: number
+        status:
+          type: string
+          enum: [open, closed, cancelled]
+        signalType:
+          type: string
+        openedAt:
+          type: string
+        closedAt:
+          type: string
+      required: [id, marketId, marketQuestion, outcomeName, direction, entryPrice, size, status, signalType, openedAt]
+
+    TradesResponse:
+      type: object
+      properties:
+        trades:
+          type: array
+          items:
+            $ref: "#/components/schemas/Trade"
+        total:
+          type: number
+      required: [trades, total]
+
+    PerformanceMetrics:
+      type: object
+      properties:
+        totalPnl:
+          type: number
+        totalPnlPercent:
+          type: number
+        winRate:
+          type: number
+        totalTrades:
+          type: number
+        openTrades:
+          type: number
+        avgEdge:
+          type: number
+        sharpeRatio:
+          type: number
+        maxDrawdown:
+          type: number
+        bankroll:
+          type: number
+        startingBankroll:
+          type: number
+        equityCurve:
+          type: array
+          items:
+            $ref: "#/components/schemas/EquityPoint"
+      required: [totalPnl, totalPnlPercent, winRate, totalTrades, openTrades, avgEdge, sharpeRatio, maxDrawdown, bankroll, startingBankroll, equityCurve]
+
+    EquityPoint:
+      type: object
+      properties:
+        date:
+          type: string
+        equity:
+          type: number
+        drawdown:
+          type: number
+      required: [date, equity, drawdown]
+
+    BacktestRequest:
+      type: object
+      properties:
+        strategy:
+          type: string
+          enum: [kelly_criterion, fixed_fractional, probability_drift]
+        startDate:
+          type: string
+        endDate:
+          type: string
+        initialBankroll:
+          type: number
+        maxKellyFraction:
+          type: number
+        minEdge:
+          type: number
+        category:
+          type: string
+      required: [strategy, initialBankroll]
+
+    BacktestResult:
+      type: object
+      properties:
+        id:
+          type: string
+        strategy:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        initialBankroll:
+          type: number
+        finalBankroll:
+          type: number
+        totalReturn:
+          type: number
+        annualizedReturn:
+          type: number
+        sharpeRatio:
+          type: number
+        maxDrawdown:
+          type: number
+        winRate:
+          type: number
+        totalTrades:
+          type: number
+        avgEdge:
+          type: number
+        equityCurve:
+          type: array
+          items:
+            $ref: "#/components/schemas/EquityPoint"
+        trades:
+          type: array
+          items:
+            $ref: "#/components/schemas/Trade"
+        runAt:
+          type: string
+      required: [id, strategy, initialBankroll, finalBankroll, totalReturn, sharpeRatio, maxDrawdown, winRate, totalTrades, avgEdge, equityCurve, trades, runAt]
+
+    BacktestResultsResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/BacktestResult"
+        total:
+          type: number
+      required: [results, total]

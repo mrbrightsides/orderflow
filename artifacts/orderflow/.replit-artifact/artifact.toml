@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Orderflow - Polymarket Intelligence"
+version = "1.0.0"
+id = "artifacts/orderflow"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23208
+
+[services.development]
+run = "pnpm --filter @workspace/orderflow run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/orderflow", "run", "build" ]
+publicDir = "artifacts/orderflow/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23208"
+BASE_PATH = "/"

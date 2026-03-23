@@ -1,0 +1,10 @@
+[build]
+builder = "nixpacks"
+buildCommand = "npm install -g pnpm@10 && pnpm install --frozen-lockfile && BASE_PATH=/ pnpm --filter @workspace/orderflow run build && pnpm --filter @workspace/api-server run build"
+
+[deploy]
+startCommand = "NODE_ENV=production node artifacts/api-server/dist/index.mjs"
+healthcheckPath = "/api/healthz"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3

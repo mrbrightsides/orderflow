@@ -47,24 +47,26 @@ Identifies markets where the leading outcome is priced between 60–92% with hig
 All signals compute a Kelly fraction: f* = (p·b − q) / b where p = win probability, q = 1−p, b = net odds. Bet size is capped at maxKellyFraction × bankroll to avoid overbetting on noisy edge estimates. Confidence score further scales the fraction down.
 
 ## Architecture
+
+```text
 GitHub Repo (monorepo / pnpm workspaces)
 │
 ├── artifacts/api-server/        ← Express 5 backend
 │   └── src/lib/
 │       ├── polymarket.ts        ← Polymarket API client + fallback
-│       ├── signals.ts           ← 4 signal detectors + Kelly sizing
-│       ├── strategy.ts          ← Trade management + portfolio metrics
-│       └── backtest.ts          ← Historical simulation engine
+│       ├── signals.ts           ← Signal detectors + Kelly sizing
+│       ├── strategy.ts          ← Portfolio & trade management
+│       └── backtest.ts          ← Simulation engine
 │
 ├── artifacts/orderflow/         ← React + Vite frontend
 │   └── src/pages/
-│       ├── markets.tsx          ← Live market feed + orderbook
-│       ├── signals.tsx          ← Signal scanner + execution
-│       ├── strategy.tsx         ← Risk config + trade log
-│       └── backtester.tsx       ← Simulation engine UI
+│       ├── markets.tsx          ← Live market feed
+│       ├── signals.tsx          ← Signal execution UI
+│       ├── strategy.tsx         ← Risk config dashboard
+│       └── backtester.tsx       ← Simulation UI
 │
-└── lib/api-spec/openapi.yaml    ← Contract-first API spec (codegen)
-Single-service deployment: Express serves both the REST API (/api/...) and the built React frontend as static files.
+└── lib/api-spec/openapi.yaml    ← Contract-first API spec
+```
 
 ## Data Sources
 

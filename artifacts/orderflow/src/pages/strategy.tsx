@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useGetStrategyConfig, useUpdateStrategyConfig, useGetTrades, useGetPerformance } from "@workspace/api-client-react";
 import { formatCurrency, formatPercentage, formatProb, cn } from "@/lib/utils";
-import { Settings, Save, RefreshCw, Briefcase, Activity, CheckCircle2, XCircle, TrendingUp } from "lucide-react";
+import { Settings, Save, RefreshCw, Briefcase, Activity, CheckCircle2, XCircle, TrendingUp, Info, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -62,19 +62,36 @@ export default function StrategyPage() {
         <p className="text-muted-foreground mt-1">Configure trading parameters and monitor live automated execution.</p>
       </header>
 
+      {/* Workflow explanation */}
+      <div className="flex items-start gap-3 bg-primary/5 border border-primary/20 rounded-xl px-4 py-3 text-sm">
+        <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+        <div className="font-mono text-muted-foreground text-xs leading-relaxed">
+          <span className="text-foreground font-semibold">How this works: </span>
+          Set your risk parameters and save → go to{" "}
+          <span className="text-primary">Signal Scanner</span> and click Execute on any signal →
+          the trade appears in the log below → Performance and Equity Curve update automatically.
+          <span className="text-muted-foreground/60"> Parameters do not retroactively change existing trades.</span>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0">
         
         {/* Left Column: Config & Performance */}
         <div className="lg:col-span-4 flex flex-col gap-6 overflow-y-auto pr-2 pb-10">
           {/* Performance Summary */}
           <div className="glass-panel rounded-xl p-5">
-            <h3 className="text-sm font-mono text-muted-foreground uppercase tracking-wider mb-4 flex items-center">
-              <Activity className="w-4 h-4 mr-2" /> Live Performance
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-mono text-muted-foreground uppercase tracking-wider flex items-center">
+                <Activity className="w-4 h-4 mr-2" /> Live Performance
+              </h3>
+              <span className="text-[10px] font-mono text-muted-foreground/50 bg-black/20 px-2 py-0.5 rounded">
+                from closed trades · auto-refreshes
+              </span>
+            </div>
             {isPerfLoading ? (
               <div className="h-32 animate-pulse bg-white/5 rounded-lg" />
             ) : performance ? (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="bg-black/20 p-3 rounded-lg border border-white/5">
                   <div className="text-[10px] text-muted-foreground font-mono uppercase">Net P&L</div>
                   <div className={cn("font-mono font-bold text-xl", performance.totalPnl >= 0 ? "text-success text-glow-success" : "text-destructive text-glow-destructive")}>
@@ -86,12 +103,20 @@ export default function StrategyPage() {
                   <div className="font-mono font-bold text-xl text-foreground">{formatPercentage(performance.winRate * 100)}</div>
                 </div>
                 <div className="bg-black/20 p-3 rounded-lg border border-white/5">
-                  <div className="text-[10px] text-muted-foreground font-mono uppercase">Current Bankroll</div>
+                  <div className="text-[10px] text-muted-foreground font-mono uppercase">Bankroll</div>
                   <div className="font-mono font-bold text-xl text-foreground">{formatCurrency(performance.bankroll)}</div>
                 </div>
                 <div className="bg-black/20 p-3 rounded-lg border border-white/5">
                   <div className="text-[10px] text-muted-foreground font-mono uppercase">Open Trades</div>
                   <div className="font-mono font-bold text-xl text-primary">{performance.openTrades}</div>
+                </div>
+                <div className="bg-black/20 p-3 rounded-lg border border-white/5">
+                  <div className="text-[10px] text-muted-foreground font-mono uppercase">Sharpe Ratio</div>
+                  <div className="font-mono font-bold text-lg text-violet-400">{performance.sharpeRatio.toFixed(2)}</div>
+                </div>
+                <div className="bg-black/20 p-3 rounded-lg border border-white/5">
+                  <div className="text-[10px] text-muted-foreground font-mono uppercase">Max Drawdown</div>
+                  <div className="font-mono font-bold text-lg text-amber-400">{performance.maxDrawdown.toFixed(1)}%</div>
                 </div>
               </div>
             ) : null}
@@ -99,9 +124,14 @@ export default function StrategyPage() {
 
           {/* Equity Curve */}
           <div className="glass-panel rounded-xl p-5">
-            <h3 className="text-sm font-mono text-muted-foreground uppercase tracking-wider mb-4 flex items-center">
-              <TrendingUp className="w-4 h-4 mr-2" /> Equity Curve
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-mono text-muted-foreground uppercase tracking-wider flex items-center">
+                <TrendingUp className="w-4 h-4 mr-2" /> Equity Curve
+              </h3>
+              <span className="text-[10px] font-mono text-muted-foreground/50 bg-black/20 px-2 py-0.5 rounded flex items-center gap-1">
+                <ArrowRight className="w-3 h-3" /> execute trades to grow this
+              </span>
+            </div>
             {isPerfLoading ? (
               <div className="h-36 animate-pulse bg-white/5 rounded-lg" />
             ) : performance?.equityCurve && performance.equityCurve.length > 1 ? (
@@ -130,7 +160,7 @@ export default function StrategyPage() {
 
           {/* Strategy Config */}
           <div className="glass-panel rounded-xl p-5 flex-1">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-2">
               <h3 className="text-sm font-mono text-muted-foreground uppercase tracking-wider flex items-center">
                 <Briefcase className="w-4 h-4 mr-2" /> Risk Parameters
               </h3>
@@ -143,6 +173,10 @@ export default function StrategyPage() {
                 Save
               </button>
             </div>
+
+            <p className="text-[11px] text-muted-foreground/60 font-mono mb-5 leading-relaxed">
+              Save changes, then execute signals from the Scanner. Parameters apply to the <span className="text-primary">next trade only</span> — existing trades are unaffected.
+            </p>
 
             <div className="space-y-6">
               <div>
